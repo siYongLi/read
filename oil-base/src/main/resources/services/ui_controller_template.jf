@@ -1,0 +1,98 @@
+package #(controllerPackage);
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.ImmutableBiMap;
+import com.jfinal.aop.Inject;
+import com.jfinal.kit.Ret;
+import com.jfinal.plugin.activerecord.Page;
+import io.jboot.db.model.Columns;
+import io.jboot.utils.StrUtil;
+import io.jboot.web.controller.annotation.RequestMapping;
+import io.jboot.web.cors.EnableCORS;
+import io.swagger.annotations.Api;
+import net.ninemm.base.interceptor.NotNullPara;
+import #(modelPackage).#(tableMeta.modelName);
+import #(modulePackage).api.#(tableMeta.modelName)Service;
+import net.ninemm.upms.service.api.UserService;
+import net.ninemm.upms.service.model.User;
+import java.util.List;
+import java.util.Map;
+/**
+ * @Deprecated是用来标识该方法未使用的
+ * @Description
+ * @author lsy
+ * @version V1.0
+ * @Date #(date)
+ */
+@RequestMapping(value = "/#(lowerCaseModelName)")
+@Api(description = "", basePath = "/#(lowerCaseModelName)", tags = "", position = 0)
+@EnableCORS
+public class #(tableMeta.modelName)Controller extends BaseAppController {
+    @Inject
+    private #(tableMeta.modelName)Service #(lowerCaseModelName)Service;
+    @Inject
+    UserService userService;
+
+    @Deprecated
+    public void index() {
+        Columns columns = Columns.create("user_id", getUserId());
+        Page<#(tableMeta.modelName)> page= #(lowerCaseModelName)Service.paginateByColumns(getPageNumber(), getPageSize(), columns);
+        Map<String, Object> map = ImmutableBiMap.of("total", page.getTotalRow(), "records", page.getList());
+        renderJson(Ret.ok("result",map));
+    }
+
+    @Deprecated
+    @NotNullPara(value = "id")
+    public void findById() {
+        #(tableMeta.modelName) #(lowerCaseModelName)  = #(lowerCaseModelName)Service.findById(getPara("id"));
+        renderJson(#(lowerCaseModelName));
+    }
+
+    @Deprecated
+    public void findAll() {
+        List<#(tableMeta.modelName)> #(lowerCaseModelName)List = #(lowerCaseModelName)Service.findAll();
+        renderJson(#(lowerCaseModelName)List);
+    }
+
+    @Deprecated
+    public void findByColum() {
+        JSONObject rawObject = getRawObject();
+
+        Columns columns = Columns.create();
+        columns.eq("", rawObject.get(""));
+        columns.likeAppendPercent("", rawObject.get(""));
+        columns.like("data_area",getDataAreaAppendPercent());
+        columns.ge("create_date",rawObject.get("startDate"));
+        columns.le("create_date",rawObject.get("endDate"));
+
+        String orderBy = rawObject.getString("orderBy");
+        if(StrUtil.isBlank(orderBy)){
+            orderBy=" create_date desc ";
+        }
+        Page<#(tableMeta.modelName)> page = #(lowerCaseModelName)Service.paginateByColumns(getPageNumber(), getPageSize(), columns, orderBy);
+        Map<String, Object> map = ImmutableBiMap.of("total", page.getTotalRow(), "records", page.getList());
+        renderJson(Ret.ok("result",map));
+    }
+
+    @Deprecated
+    public void saveOrUpdate() {
+        #(tableMeta.modelName) #(lowerCaseModelName) = getRawObject(#(tableMeta.modelName).class);
+        String userId = getUserId();
+        User user = userService.findById(userId);
+        if (StrUtil.isBlank(#(lowerCaseModelName).getId())) {
+
+        }
+        #(lowerCaseModelName)Service.saveOrUpdate(#(lowerCaseModelName));
+        renderJson(Ret.ok().set("id", #(lowerCaseModelName).getId()));
+    }
+
+    @Deprecated
+    @NotNullPara(value = "id")
+    public void delete() {
+        if(#(lowerCaseModelName)Service.deleteById(getPara("id"))){
+            renderJson(Ret.ok());
+            return ;
+        }else{
+            renderJson(Ret.fail());
+        }
+    }
+}
