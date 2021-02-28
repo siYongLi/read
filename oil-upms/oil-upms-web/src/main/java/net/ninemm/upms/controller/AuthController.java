@@ -20,16 +20,32 @@ package net.ninemm.upms.controller;
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
 import ch.ethz.ssh2.SCPInputStream;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ZipUtil;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.metadata.Sheet;
+import com.alibaba.excel.support.ExcelTypeEnum;
+import com.jfinal.aop.Clear;
+import com.jfinal.kit.PathKit;
+import com.jfinal.kit.Ret;
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Record;
 import io.jboot.Jboot;
+import io.jboot.utils.FileUtil;
 import io.jboot.web.controller.annotation.RequestMapping;
 import io.jboot.web.cors.EnableCORS;
+import net.ninemm.base.interceptor.AesInterceptor;
+import net.ninemm.base.interceptor.GlobalCacheInterceptor;
+import net.ninemm.base.interceptor.NotNullPara;
+import net.ninemm.base.utils.AttachmentUtils;
 import net.ninemm.base.utils.ScpClient;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * 用户登录认证
@@ -74,6 +90,69 @@ public class AuthController extends BaseAppController {
             e.printStackTrace();
         }
         renderNull();
+    }
+
+    public void getFil(){
+        //导出excel数据
+        List<List<Object>> datas = new ArrayList<List<Object>>();
+        datas.add(Arrays.asList("lsy","8008"));
+        datas.add(Arrays.asList("lsy","8003"));
+        datas.add(Arrays.asList("lsy","8004"));
+        //设置表头信息
+        Sheet sheet = new Sheet(1,0);
+        sheet.setSheetName("学生成绩");
+
+        List<List<String>> heads = new ArrayList<List<String>>();
+        heads.add(Arrays.asList("姓名"));
+        heads.add(Arrays.asList("学号"));
+        sheet.setHead(heads);
+
+        makeFile(datas, sheet, "8008", "1.xlsx");
+        File zip = ZipUtil.zip(getZipFolder("8008"));
+        renderFile(zip);
+    }
+
+    private String getZipFolder(String workNo) {
+        return new StringBuilder(PathKit.getWebRootPath())
+                .append(File.separator).append("excel")
+                .append(File.separator).append(new SimpleDateFormat("yyyyMMdd").format(new Date()))
+                .append(File.separator).append(workNo).toString();
+
+    }
+
+    private File makeFile(List<List<Object>> datas, Sheet sheet,String workNo,String FileName) {
+        File userFile = getUserFile(workNo, FileName);
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream(userFile);
+            ExcelWriter writer = new ExcelWriter(out, ExcelTypeEnum.XLSX, true);
+            writer.write1(datas, sheet);
+            writer.finish();
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return userFile;
+    }
+
+    private File getUserFile(String workNo,String FileName) {
+        String folder = new StringBuilder(PathKit.getWebRootPath())
+                .append(File.separator).append("excel")
+                .append(File.separator).append(new SimpleDateFormat("yyyyMMdd").format(new Date()))
+                .append(File.separator)  .append(workNo).toString();
+        File file = new File(folder);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+
+        return  new File(file,FileName);
     }
 
 
