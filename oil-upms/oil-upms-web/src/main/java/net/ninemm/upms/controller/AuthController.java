@@ -53,7 +53,7 @@ import java.util.*;
  * @author Eric.Huang
  * @date 2018-12-26 21:46
  **/
-@RequestMapping(value = "/")
+@RequestMapping(value = "/auth")
 @EnableCORS
 public class AuthController extends BaseAppController {
 
