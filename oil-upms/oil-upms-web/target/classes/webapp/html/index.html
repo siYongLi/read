@@ -1,15 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no"/>
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>文件列表</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>报销</title>
+	<link rel="stylesheet" href="/html/index.css">
 </head>
-
 <body>
+<div align="center" style="margin-top: 2em">
+	<div class="el-input">
+		<input type="text" autocomplete="off" placeholder="请输入工号" class="el-input__inner" maxlength="6" id="work_num" style="width:24%;">
+	</div>
+	</p>
 
-
+	<button type="button" class="el-button el-button--primary is-round" id = "bt1" onclick="download(this.id)"><span>打卡清单</span></button>
+	<button type="button" class="el-button el-button--primary is-round" id = "bt2" onclick="download(this.id)"><span>餐费报销</span></button>
+	<button type="button" class="el-button el-button--primary is-round" id = "bt3" onclick="download(this.id)"><span>车费报销</span></button>
+	<button type="button" class="el-button el-button--primary is-round" id = "bt4" onclick="download(this.id)"><span>打包下载</span></button>
+</div>
+<div class="tips">
+	本工具处于试用阶段，数据可能不准确，请各位童学仔细检查后再报销。
+</div>
+  <style>
+	  .tips{
+		  background-color:#FFF;
+		  position:fixed;
+		  width:90%;
+		  height:30%;
+		  bottom:10px;
+		  left:24%;
+		  font-size: 2em;
+		  color:green;
+	  }
+  </style>
+  <script src="/html/jquery.min.js"></script>
+  <script src="/html/index.js"></script>
+  <script>
+	function download(id){
+		var work_num = $("#work_num").val();
+		if(work_num.length<6){
+			alert("工号错误")
+			return
+		}
+		if("bt1"==id){
+			location.href="/download?no="+work_num;
+		}else if("bt2"==id){
+			location.href="/download?no="+work_num;
+		}else if("bt3"==id){
+			location.href="/download?no="+work_num;
+		}else if("bt4"==id){
+			location.href="/download?no="+work_num;
+		}
+	}
+  </script>
 </body>
 </html>
